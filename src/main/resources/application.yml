@@ -1,0 +1,38 @@
+spring:
+  app:
+    scheduler:
+      fixedDelay: 65_000
+    cbrf:
+      url: https://www.cbr.ru/scripts/XML_daily.asp
+      date: 13-04-2025
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/currency
+    username: currency
+    password:  currency
+  jpa:
+    database: postgresql
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+management:
+  endpoints.web.exposure.include: prometheus, metrics, health, info
+  metrics:
+    prometheus:
+      metrics:
+        export:
+          prometheus:
+            enabled: true
+    distribution:
+      sla:
+        http:
+          server:
+            /currencies: 100ms, 200ms, 500ms, 1s, 5s
+            /actuator/prometheus: 100ms, 200ms, 500ms, 1s, 5s
+#            requests: 100ms, 300ms, 500ms, 1s, 5s  # Custom SLA buckets (in milliseconds)
+      percentiles-histogram:
+        "[http.server.reuests]": true
+    percentiles:
+      http:
+        server:
+          requests: 0.5, 0.95, 0.99  # Optional: Publish percentiles (e.g., p50, p95, p99)

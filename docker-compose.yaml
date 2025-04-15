@@ -1,0 +1,39 @@
+#version: '3.7'
+services:
+  postgres:
+    image: postgres:17.2
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=currency
+      - POSTGRES_USER=currency
+      - POSTGRES_DB=currency
+#    profiles:
+#      - postgres
+#  volumes:
+#    kc-postgres_data:
+  scheduler:
+    image: cb-scheduler:latest
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/currency
+      - SPRING_DATASOURCE_USERNAME=currency
+      - SPRING_DATASOURCE_PASSWORD=currency
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana:11.6.0
+    restart: "no"
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
